@@ -7,10 +7,13 @@ import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.View;
 import android.view.animation.Animation;
+import android.view.animation.AnimationUtils;
 import android.widget.Button;
 import android.widget.CompoundButton;
 import android.widget.ImageView;
 import android.widget.ToggleButton;
+
+import java.util.Random;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -19,6 +22,7 @@ public class MainActivity extends AppCompatActivity {
     private AnimationDrawable animationDrawable;
     private ImageView image;
     private MediaPlayer mediaPlayer;
+    CustomAnimationDrawable customAnimationDrawable;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -27,12 +31,46 @@ public class MainActivity extends AppCompatActivity {
         muteButton = findViewById(R.id.toggleButton);
         mediaPlayer = MediaPlayer.create(MainActivity.this, R.raw.minute);
         image = findViewById(R.id.imageView);
+       // image.setImageResource(R.drawable.animations);
+        //animationDrawable = (AnimationDrawable) image.getDrawable();
+
         startButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 mediaPlayer.start();
                 mediaPlayer.setLooping(true);
-                BitmapDrawable frame1 = (BitmapDrawable)getResources().getDrawable(R.drawable.frame01);
+
+                customAnimationDrawable = new CustomAnimationDrawable((AnimationDrawable)getResources().getDrawable(R.drawable.animations)) {
+                    @Override
+                    public void onAnimationFinish() {
+
+
+                        customAnimationDrawable.stop();
+                        customAnimationDrawable.start();
+
+                    }
+
+                    @Override
+                    public void onAnimationStart() {
+                        Random r = new Random();
+
+                        if(r.nextBoolean()){
+                        int i1 = r.nextInt(4 - 0 ) + 0;
+                        zoom(i1);
+                    }}
+                };
+
+                image.setBackground(customAnimationDrawable);
+                customAnimationDrawable.setOneShot(true);
+                customAnimationDrawable.start();
+
+
+             //   animationDrawable.start();
+
+
+
+
+       /*         BitmapDrawable frame1 = (BitmapDrawable)getResources().getDrawable(R.drawable.frame01);
                 BitmapDrawable frame2 = (BitmapDrawable)getResources().getDrawable(R.drawable.frame02);
                 BitmapDrawable frame3 = (BitmapDrawable)getResources().getDrawable(R.drawable.frame03);
                 BitmapDrawable frame4 = (BitmapDrawable)getResources().getDrawable(R.drawable.frame04);
@@ -72,12 +110,28 @@ public class MainActivity extends AppCompatActivity {
                 animationDrawable.addFrame(frame15,loopDuration);
                 animationDrawable.addFrame(frame16,loopDuration);
                 animationDrawable.addFrame(frame17,loopDuration);
-                image.setBackground(animationDrawable);
-                animationDrawable.start();
-                animationDrawable.setOneShot(false);
+                CustomAnimationDrawable customAnimationDrawable = new CustomAnimationDrawable(animationDrawable) {
+                    @Override
+                    public void onAnimationFinish() {
+                        zoom(true);
+                    }
 
+                    @Override
+                    public void onAnimationStart() {
+                        zoom(false);
+                    }
+
+
+                };
+                image.setBackground(customAnimationDrawable);
+                customAnimationDrawable.start();
+
+                customAnimationDrawable.setOneShot(false);
+*/
             }
         });
+
+
 
         muteButton.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
@@ -91,6 +145,43 @@ public class MainActivity extends AppCompatActivity {
                 }
             }
         });
+
+    }
+    public void zoom(int value){
+        switch (value) {
+
+            case 0:{
+                    Animation animation1 = AnimationUtils.loadAnimation(getApplicationContext(),R.anim.zoom_in);
+                    image.startAnimation(animation1);
+                     break;}
+            case 1: {
+                Animation animation1 = AnimationUtils.loadAnimation(getApplicationContext(), R.anim.zoom_out);
+                image.startAnimation(animation1);
+                break;
+            }case 2: {
+                Animation animation1 = AnimationUtils.loadAnimation(getApplicationContext(), R.anim.counter_clockwise);
+                image.startAnimation(animation1);
+                break;
+            }case 3: {
+                Animation animation1 = AnimationUtils.loadAnimation(getApplicationContext(), R.anim.clockwise);
+                image.startAnimation(animation1);
+                break;
+            }}
+
+    }
+
+    public void rotate(boolean clockwise){
+        if(clockwise){
+            Animation animation1 = AnimationUtils.loadAnimation(getApplicationContext(),R.anim.clockwise);
+            image.startAnimation(animation1);
+
+
+        }else {
+            Animation animation1 = AnimationUtils.loadAnimation(getApplicationContext(),R.anim.counter_clockwise);
+            image.startAnimation(animation1);
+
+
+        }
 
     }
 }
