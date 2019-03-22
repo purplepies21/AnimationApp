@@ -1,13 +1,20 @@
 package com.example.animationapp;
 
+import android.graphics.Color;
+import android.graphics.Paint;
 import android.graphics.drawable.AnimationDrawable;
 import android.graphics.drawable.BitmapDrawable;
 import android.media.MediaPlayer;
+import android.support.constraint.ConstraintLayout;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.View;
+import android.view.animation.AccelerateInterpolator;
+import android.view.animation.AlphaAnimation;
 import android.view.animation.Animation;
+import android.view.animation.AnimationSet;
 import android.view.animation.AnimationUtils;
+import android.view.animation.DecelerateInterpolator;
 import android.widget.Button;
 import android.widget.CompoundButton;
 import android.widget.ImageView;
@@ -22,6 +29,7 @@ public class MainActivity extends AppCompatActivity {
     private AnimationDrawable animationDrawable;
     private ImageView image;
     private MediaPlayer mediaPlayer;
+    private ConstraintLayout mConstraintLayout;
     CustomAnimationDrawable customAnimationDrawable;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -29,6 +37,7 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
         startButton = findViewById(R.id.button01);
         muteButton = findViewById(R.id.toggleButton);
+        mConstraintLayout = findViewById(R.id.constraintLayout);
         mediaPlayer = MediaPlayer.create(MainActivity.this, R.raw.minute);
         image = findViewById(R.id.imageView);
        // image.setImageResource(R.drawable.animations);
@@ -37,6 +46,11 @@ public class MainActivity extends AppCompatActivity {
         startButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+
+                if(mediaPlayer.isPlaying()) {
+                    mediaPlayer.pause();
+                    mediaPlayer.seekTo(0);
+                }
                 mediaPlayer.start();
                 mediaPlayer.setLooping(true);
 
@@ -54,14 +68,24 @@ public class MainActivity extends AppCompatActivity {
                     public void onAnimationStart() {
                         Random r = new Random();
 
+                        Paint p = new Paint();
+                        p.setARGB(r.nextInt(255),r.nextInt(255),r.nextInt(255),r.nextInt(255));
+                        mConstraintLayout.setBackgroundColor(p.getColor());
                         if(r.nextBoolean()){
-                        int i1 = r.nextInt(4 - 0 ) + 0;
-                        zoom(i1);
-                    }}
+                            int i1 = r.nextInt(5 - 0 ) + 0;
+                            zoom(i1);
+
+
+                        }}
                 };
 
                 image.setBackground(customAnimationDrawable);
                 customAnimationDrawable.setOneShot(true);
+
+                if(customAnimationDrawable.isRunning()){
+                    customAnimationDrawable.stop();
+
+                }
                 customAnimationDrawable.start();
 
 
@@ -148,12 +172,13 @@ public class MainActivity extends AppCompatActivity {
 
     }
     public void zoom(int value){
+
         switch (value) {
 
             case 0:{
-                    Animation animation1 = AnimationUtils.loadAnimation(getApplicationContext(),R.anim.zoom_in);
-                    image.startAnimation(animation1);
-                     break;}
+                Animation animation1 = AnimationUtils.loadAnimation(getApplicationContext(),R.anim.zoom_in);
+                image.startAnimation(animation1);
+                break;}
             case 1: {
                 Animation animation1 = AnimationUtils.loadAnimation(getApplicationContext(), R.anim.zoom_out);
                 image.startAnimation(animation1);
@@ -166,8 +191,19 @@ public class MainActivity extends AppCompatActivity {
                 Animation animation1 = AnimationUtils.loadAnimation(getApplicationContext(), R.anim.clockwise);
                 image.startAnimation(animation1);
                 break;
-            }}
+            }case 4:{Animation fadeIn = new AlphaAnimation(0, 1);
+                fadeIn.setInterpolator(new DecelerateInterpolator()); //add this
+                fadeIn.setDuration(5000);
 
+                Animation fadeOut = new AlphaAnimation(1, 0);
+                fadeOut.setInterpolator(new AccelerateInterpolator()); //and this
+                fadeOut.setStartOffset(1000);
+                fadeOut.setDuration(5000);
+        AnimationSet animation = new AnimationSet(false); //change to false
+                 animation.addAnimation(fadeOut);
+                animation.addAnimation(fadeIn);
+                image.startAnimation(animation);
+            }}
     }
 
     public void rotate(boolean clockwise){
